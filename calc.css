@@ -68,22 +68,22 @@ button {
 }
 .fbtn:hover {
   background-color: hsl(35,100%,65%);
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease-in-out;
   transform: scale(1.05);
 }
 .fbtn:active {
   background-color: hsl(35,100%,75%);
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease-in-out;
   transform: scale(1.05);
 }
 
 .btn:hover {
   background-color: hsl(0,0%,40%);
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease-in-out;
   transform: scale(1.05);
 }
 .btn:active {
   background-color: hsl(0,0%,50%);
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease-in-out;
   transform: scale(1.05);
 }
