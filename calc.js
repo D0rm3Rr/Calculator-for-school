@@ -30,7 +30,9 @@ function appendToDisplay(input) {
     }
 
     if (/[+\-*/^]/.test(input)) {
-        if (!/[+\-*/^]/.test(lastChar)) {
+        if (/[+\-*/^]/.test(lastChar)) {
+            display.value = display.value.slice(0, -1) + input;
+        } else {
             display.value += input;
         }
     } 
@@ -55,36 +57,36 @@ function calculate() {
             clearvalue = false;
             return;
         }
+
         let invalidFactorialFound = false;
 
         expression = expression.replace(/(-?\d+(\.\d+)?|\([^()]+\))!/g, (match, number) => {
-        let num = number.replace(/[()]/g, "");
-        num = parseFloat(num);
+            let num = number.replace(/[()]/g, "");
+            num = parseFloat(num);
 
-        
-        if (num < 0 || !Number.isInteger(num)) {
-            invalidFactorialFound = true;
-            return "0"
-        }
+            if (num < 0 || !Number.isInteger(num)) {
+                invalidFactorialFound = true;
+                return "0";
+            }
 
-        return `factorial(${num})`;
+            return `factorial(${num})`;
         });
+
         if (invalidFactorialFound) {
             display.value = "Invalid Factorial";
             clearvalue = true;
             return;
         }
 
-
         if (expression.startsWith("!")) {
             display.value = "Error";
             clearvalue = true;
             return;
         }
+
         function log10(x) {
             return Math.log10(x);
         }
-
 
         const sciMatches = [];
         expression = expression.replace(/[0-9]+(?:\.[0-9]+)?E[+-]?\d+/gi, (m) => {
@@ -95,9 +97,11 @@ function calculate() {
 
         expression = expression.replace(/√\(/g, "Math.sqrt(");
         expression = expression.replace(/∛\(/g, "Math.cbrt(");
-        expression = expression.replace(/sin\(/g, "Math.sin(Math.PI/180*");
-        expression = expression.replace(/cos\(/g, "Math.cos(Math.PI/180*");
-        expression = expression.replace(/tan\(/g, "Math.tan(Math.PI/180*");
+
+        // FIX: proper trig wrapping
+        expression = expression.replace(/sin\(([^)]+)\)/g, "Math.sin(Math.PI/180*($1))");
+        expression = expression.replace(/cos\(([^)]+)\)/g, "Math.cos(Math.PI/180*($1))");
+        expression = expression.replace(/tan\(([^)]+)\)/g, "Math.tan(Math.PI/180*($1))");
 
         expression = expression.replace(/(\d|π|Π|𝑒)\s*(log|ln)\(/g, "$1*$2(");
 
@@ -110,8 +114,6 @@ function calculate() {
         expression = expression.replace(/Π/g, "(3.14)");
         expression = expression.replace(/𝑒/g, "Math.E");
 
-        expression = expression.replace(/(\d+|\([^()]+\))!/g, "factorial($1)");
-
         for (let i = 0; i < sciMatches.length; i++) {
             expression = expression.replace(`__SCI${i}__`, sciMatches[i]);
         }
@@ -121,25 +123,18 @@ function calculate() {
         expression = expression.replace(/\)(\d)/g, ")*$1");
         expression = expression.replace(/\)(Math\.)/g, ")*$1");
         expression = expression.replace(/(Math\.(?:PI|E|sqrt|log|log10))(\d)/g, "$1*$2");
-        expression = expression.replace(/(Math\.(?:PI|E))\(/g, "$1*(");
+        expression = expression.replace(/(Math\.(?:PI|E))(\()/g, "$1*$2");
         expression = expression.replace(/\^/g, "**");
 
         expression = expression.replace(/log10\*\(/g, "log10(");
-        expression = expression.replace(/(\-?\d+(\.\d+)?|\([^()]+\))!/g, (match, number) => {
-            let num = number.replace(/[()]/g, "");
 
-            if (!Number.isInteger(parseFloat(num)) || parseFloat(num) < 0) {
-                return "0";
-            }
-            return `factorial(${num})`;
-        });
-        
         console.log("Evaluating:", expression);
 
-        let result = eval(expression);
-        result = Number(result.toFixed(4))
+        let result = Function(`"use strict"; return (${expression})`)();
+
         if (typeof result === "number" && isFinite(result)) {
-            display.value = parseFloat(result.toPrecision(10)).toString();
+            result = Number(result.toFixed(4));
+            display.value = result.toString();
         } else {
             display.value = "Error";
         }
@@ -151,10 +146,6 @@ function calculate() {
         clearvalue = true;
     }
 }
-
-
-
-
 
 function squareRoot() {
     if (display.value === "Error" || display.value === "Invalid Factorial") display.value = "";
@@ -226,12 +217,12 @@ function factorial(n){
     if (n < 0 || !Number.isInteger(n)) {
         throw new Error("Invalid Factorial");
     }
-    if (!Number.isInteger(n)) return undefined;
     if (n === 0 || n === 1) return 1;
     let result = 1;
     for (let i = 2; i <= n; i++) result *= i;
     return result;
 }
+
 function cubeRoot(){
     if (display.value === "Error"|| display.value === "Invalid Factorial") display.value = "";
     display.value += "∛(";
