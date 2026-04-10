@@ -137,7 +137,7 @@ function calculate() {
         console.log("Evaluating:", expression);
 
         let result = eval(expression);
-        result = result.toFixed(4)
+        result = Number(result.toFixed(4))
         if (typeof result === "number" && isFinite(result)) {
             display.value = parseFloat(result.toPrecision(10)).toString();
         } else {
