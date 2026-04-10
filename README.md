@@ -15,6 +15,9 @@ My computer science teacher told me this doesn't count as project for calc becau
   - [ ] Decoration
 ## What will the calc have when its done
 
+### New Feature 
+  - Change the sign when you press a different one when there is already one
+
 ### Operators
   - Simple ones
   - sin,cos,tan,and inverse(done)
