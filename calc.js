@@ -223,7 +223,9 @@ function factorialNumber(){
 }
 
 function factorial(n){
-    if (n < 0) return undefined;
+    if (n < 0 || !Number.isInteger(n)) {
+        throw new Error("Invalid Factorial");
+    }
     if (!Number.isInteger(n)) return undefined;
     if (n === 0 || n === 1) return 1;
     let result = 1;
